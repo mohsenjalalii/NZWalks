@@ -3,19 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using NZWalks.Data;
 using NZWalks.Models.Domain;
 using NZWalks.Models.DTO;
+using NZWalks.Repository;
 
 namespace NZWalks.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class RegionsController(NZWalksDbContext dbContext) : ControllerBase
+public class RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository) : ControllerBase
 {
     private readonly NZWalksDbContext _db = dbContext;
+    private readonly IRegionRepository _sqlDb = regionRepository;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        IEnumerable<Region> regions = await _db.Region.ToListAsync();
+        IEnumerable<Region> regions = await _sqlDb.GetAll();
         List<RegionDto> reginoDto = [];
 
         foreach (Region region in regions)
