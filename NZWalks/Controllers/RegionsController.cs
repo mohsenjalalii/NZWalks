@@ -17,7 +17,7 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        IEnumerable<Region> regions = await _sqlDb.GetAll();
+        IEnumerable<Region> regions = await _sqlDb.GetAllAsync();
         List<RegionDto> reginoDto = [];
 
         foreach (Region region in regions)
@@ -38,7 +38,8 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     [Route("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        Region region = await _db.Region.FirstOrDefaultAsync(r => r.Id == id);
+        Region region = await _sqlDb.GetByIdAsync(id);
+
         RegionDto regionDto = new RegionDto
         {
             Id = region.Id,
@@ -62,8 +63,7 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
             RegionImageUrl = addRegionRequestDto.RegionImageUrl,
         };
 
-        await _db.Region.AddAsync(newRegion);
-        await _db.SaveChangesAsync();
+        await _sqlDb.CreateAsync(newRegion);
 
         RegionDto regionDto = new RegionDto
         {
@@ -80,15 +80,16 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     [Route("{id:Guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] AddRegionRequestDto addRegionRequestDto)
     {
-        Region region = await _db.Region.FirstOrDefaultAsync(r => r.Id == id);
+        Region convertedRegion = new()
+        {
+            Code = addRegionRequestDto.Code,
+            Name = addRegionRequestDto.Name,
+            RegionImageUrl = addRegionRequestDto.RegionImageUrl
+        };
+
+        Region region = await _sqlDb.UpdateAsync(id, convertedRegion);
 
         if (region == null) return NotFound();
-
-        region.Code = addRegionRequestDto.Code;
-        region.Name = addRegionRequestDto.Name;
-        region.RegionImageUrl = addRegionRequestDto.RegionImageUrl;
-
-        await _db.SaveChangesAsync();
 
         RegionDto regionDto = new RegionDto
         {
@@ -104,12 +105,9 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     [HttpDelete]
     public async Task<IActionResult> Delete(Guid id)
     {
-        Region region = await _db.Region.FirstOrDefaultAsync(r => r.Id == id);
+        Region region = await _sqlDb.DeleteAsync(id);
 
         if (region == null) return NotFound();
-
-        _db.Region.Remove(region);
-        await _db.SaveChangesAsync();
 
         return Ok();
     }

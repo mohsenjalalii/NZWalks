@@ -2,7 +2,7 @@ using NZWalks.Models.Domain;
 
 namespace NZWalks.Repository;
 
-public class InMemoryRegionRepository : IRegionRepository
+public class InMemoryRegionRepository
 {
     public async Task<IEnumerable<Region>> GetAll()
     {

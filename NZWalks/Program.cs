@@ -12,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<NZWalksDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksConnectionString")));
-builder.Services.AddScoped<IRegionRepository, InMemoryRegionRepository>();
+builder.Services.AddScoped<IRegionRepository, SqlRegionRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
