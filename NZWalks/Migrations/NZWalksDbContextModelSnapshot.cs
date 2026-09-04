@@ -35,6 +35,23 @@ namespace NZWalks.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Difficulty");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("0f4d67e6-a993-487b-852b-5c8e41c2621b"),
+                            Name = "Easy"
+                        },
+                        new
+                        {
+                            Id = new Guid("427a22f7-cceb-48ac-b381-529d46b7d35c"),
+                            Name = "Medium"
+                        },
+                        new
+                        {
+                            Id = new Guid("9f259eff-19a9-4937-a63d-9c9cc86716ed"),
+                            Name = "Hard"
+                        });
                 });
 
             modelBuilder.Entity("NZWalks.Models.Domain.Region", b =>
@@ -57,6 +74,15 @@ namespace NZWalks.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Region");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("41f97f75-a7b9-4b31-ad86-d5a1926e6a5b"),
+                            Code = "AKL",
+                            Name = "Auckland",
+                            RegionImageUrl = "auckland image"
+                        });
                 });
 
             modelBuilder.Entity("NZWalks.Models.Domain.Walk", b =>

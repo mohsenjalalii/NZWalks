@@ -13,14 +13,14 @@ namespace NZWalks.Controllers;
 public class RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository, IMapper mapper) : ControllerBase
 {
     private readonly NZWalksDbContext _db = dbContext;
-    private readonly IRegionRepository _sqlDb = regionRepository;
+    private readonly IRegionRepository regionRepository = regionRepository;
     private readonly IMapper _mapper = mapper;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        IEnumerable<Region> regions = await _sqlDb.GetAllAsync();
-        List<RegionDto> reginoDto = mapper.Map<List<RegionDto>>(regions);
+        IEnumerable<Region> regions = await regionRepository.GetAllAsync();
+        List<RegionDto> reginoDto = _mapper.Map<List<RegionDto>>(regions);
 
         return Ok(reginoDto);
     }
@@ -29,11 +29,11 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     [Route("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        Region region = await _sqlDb.GetByIdAsync(id);
+        Region region = await regionRepository.GetByIdAsync(id);
 
         if (region == null) return NotFound();
 
-        RegionDto regionDto = mapper.Map<RegionDto>(region);
+        RegionDto regionDto = _mapper.Map<RegionDto>(region);
 
         return Ok(regionDto);
     }
@@ -41,9 +41,9 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
     {
-        Region newRegion = mapper.Map<Region>(addRegionRequestDto);
-        await _sqlDb.CreateAsync(newRegion);
-        RegionDto regionDto = mapper.Map<RegionDto>(newRegion);
+        Region newRegion = _mapper.Map<Region>(addRegionRequestDto);
+        await regionRepository.CreateAsync(newRegion);
+        RegionDto regionDto = _mapper.Map<RegionDto>(newRegion);
 
         return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
     }
@@ -52,12 +52,12 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     [Route("{id:Guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
     {
-        Region convertedRegion = mapper.Map<Region>(updateRegionRequestDto);
-        Region region = await _sqlDb.UpdateAsync(id, convertedRegion);
+        Region convertedRegion = _mapper.Map<Region>(updateRegionRequestDto);
+        Region region = await regionRepository.UpdateAsync(id, convertedRegion);
 
         if (region == null) return NotFound();
 
-        RegionDto regionDto = mapper.Map<RegionDto>(region);
+        RegionDto regionDto = _mapper.Map<RegionDto>(region);
 
         return Ok(regionDto);
     }
@@ -65,7 +65,7 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     [HttpDelete]
     public async Task<IActionResult> Delete(Guid id)
     {
-        Region region = await _sqlDb.DeleteAsync(id);
+        Region region = await regionRepository.DeleteAsync(id);
 
         if (region == null) return NotFound();
 
