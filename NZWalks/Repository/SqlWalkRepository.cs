@@ -13,6 +13,12 @@ public class SqlWalkRepository(NZWalksDbContext dbContext) : IWalkRepository
     {
         return await _db.Walk.Include("Difficulty").Include("Region").ToListAsync();
     }
+
+    public async Task<Walk?> GetById(Guid id)
+    {
+        return await _db.Walk.Include("Difficulty").Include("Region").FirstOrDefaultAsync(w => w.Id == id);
+    }
+
     public async Task<Walk> CreateAsync(Walk walk)
     {
         await _db.Walk.AddAsync(walk);

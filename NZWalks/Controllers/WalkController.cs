@@ -22,6 +22,16 @@ public class WalkController(IWalkRepository walkRepository, IMapper mapper) : Co
         return Ok(walkdDto);
     }
 
+    [HttpGet]
+    [Route("{id:Guid}")]
+    public async Task<IActionResult> GetWalk([FromRoute] Guid id)
+    {
+        Walk walk = await walkRepository.GetById(id);
+        WalkDto walkDto = _mapper.Map<WalkDto>(walk);
+
+        return Ok(walkDto);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto)
     {
