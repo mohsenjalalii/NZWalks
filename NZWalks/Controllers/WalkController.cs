@@ -41,4 +41,18 @@ public class WalkController(IWalkRepository walkRepository, IMapper mapper) : Co
 
         return Ok(walkDto);
     }
+
+    [HttpPut]
+    [Route("{id:Guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, UpdateWalkRequestDto updateWalkRequestDto)
+    {
+        Walk walk = _mapper.Map<Walk>(updateWalkRequestDto);
+        Walk newWalk = await walkRepository.UpdateAsync(id, walk);
+
+        if (newWalk == null) return NotFound();
+
+        WalkDto newWalkDto = _mapper.Map<WalkDto>(newWalk);
+
+        return Ok(newWalkDto);
+    }
 }

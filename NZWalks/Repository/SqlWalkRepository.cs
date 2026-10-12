@@ -26,4 +26,21 @@ public class SqlWalkRepository(NZWalksDbContext dbContext) : IWalkRepository
 
         return walk;
     }
+
+    public async Task<Walk?> UpdateAsync(Guid id, Walk walk)
+    {
+        Walk existWalk = await _db.Walk.FirstOrDefaultAsync(w => w.Id == id);
+
+        if (existWalk == null) return null;
+
+        existWalk.Name = walk.Name;
+        existWalk.Description = walk.Description;
+        existWalk.LengthInKm = walk.LengthInKm;
+        existWalk.WalkImageUrl = walk.WalkImageUrl;
+        existWalk.DifficultyId = walk.DifficultyId;
+        existWalk.RegionId = walk.RegionId;
+        await _db.SaveChangesAsync();
+
+        return existWalk;
+    }
 }
