@@ -10,7 +10,11 @@ namespace NZWalks.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository, IMapper mapper) : ControllerBase
+public class RegionsController(
+    NZWalksDbContext dbContext,
+    IRegionRepository regionRepository,
+    IMapper mapper
+) : ControllerBase
 {
     private readonly NZWalksDbContext _db = dbContext;
     private readonly IRegionRepository regionRepository = regionRepository;
@@ -31,7 +35,8 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     {
         Region region = await regionRepository.GetByIdAsync(id);
 
-        if (region == null) return NotFound();
+        if (region == null)
+            return NotFound();
 
         RegionDto regionDto = _mapper.Map<RegionDto>(region);
 
@@ -41,25 +46,43 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
     {
-        Region newRegion = _mapper.Map<Region>(addRegionRequestDto);
-        await regionRepository.CreateAsync(newRegion);
-        RegionDto regionDto = _mapper.Map<RegionDto>(newRegion);
+        if (ModelState.IsValid)
+        {
+            Region newRegion = _mapper.Map<Region>(addRegionRequestDto);
+            await regionRepository.CreateAsync(newRegion);
+            RegionDto regionDto = _mapper.Map<RegionDto>(newRegion);
 
-        return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
+            return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
+        }
+        else
+        {
+            return BadRequest(ModelState);
+        }
     }
 
     [HttpPut]
     [Route("{id:Guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
+    public async Task<IActionResult> Update(
+        [FromRoute] Guid id,
+        [FromBody] UpdateRegionRequestDto updateRegionRequestDto
+    )
     {
-        Region convertedRegion = _mapper.Map<Region>(updateRegionRequestDto);
-        Region region = await regionRepository.UpdateAsync(id, convertedRegion);
+        if (ModelState.IsValid)
+        {
+            Region convertedRegion = _mapper.Map<Region>(updateRegionRequestDto);
+            Region region = await regionRepository.UpdateAsync(id, convertedRegion);
 
-        if (region == null) return NotFound();
+            if (region == null)
+                return NotFound();
 
-        RegionDto regionDto = _mapper.Map<RegionDto>(region);
+            RegionDto regionDto = _mapper.Map<RegionDto>(region);
 
-        return Ok(regionDto);
+            return Ok(regionDto);
+        }
+        else
+        {
+            return BadRequest(ModelState);
+        }
     }
 
     [HttpDelete]
@@ -67,7 +90,8 @@ public class RegionsController(NZWalksDbContext dbContext, IRegionRepository reg
     {
         Region region = await regionRepository.DeleteAsync(id);
 
-        if (region == null) return NotFound();
+        if (region == null)
+            return NotFound();
 
         return Ok();
     }

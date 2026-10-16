@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NZWalks.Data;
@@ -16,7 +17,10 @@ public class SqlWalkRepository(NZWalksDbContext dbContext) : IWalkRepository
 
     public async Task<Walk?> GetById(Guid id)
     {
-        return await _db.Walk.Include("Difficulty").Include("Region").FirstOrDefaultAsync(w => w.Id == id);
+        return await _db
+            .Walk.Include("Difficulty")
+            .Include("Region")
+            .FirstOrDefaultAsync(w => w.Id == id);
     }
 
     public async Task<Walk> CreateAsync(Walk walk)
@@ -31,7 +35,8 @@ public class SqlWalkRepository(NZWalksDbContext dbContext) : IWalkRepository
     {
         Walk existWalk = await _db.Walk.FirstOrDefaultAsync(w => w.Id == id);
 
-        if (existWalk == null) return null;
+        if (existWalk == null)
+            return null;
 
         existWalk.Name = walk.Name;
         existWalk.Description = walk.Description;
@@ -41,6 +46,18 @@ public class SqlWalkRepository(NZWalksDbContext dbContext) : IWalkRepository
         existWalk.RegionId = walk.RegionId;
         await _db.SaveChangesAsync();
 
+        return existWalk;
+    }
+
+    public async Task<Walk> Delete(Guid id)
+    {
+        Walk existWalk = await _db.Walk.FirstOrDefaultAsync(w => w.Id == id);
+
+        if (existWalk == null)
+            return null;
+
+        _db.Walk.Remove(existWalk);
+        await _db.SaveChangesAsync();
         return existWalk;
     }
 }

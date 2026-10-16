@@ -6,7 +6,8 @@ namespace NZWalks.Repository;
 public interface IWalkRepository
 {
     Task<IEnumerable<Walk>> GetAllAsync();
-    Task<Walk> GetById(Guid id);
+    Task<Walk?> GetById(Guid id);
     Task<Walk?> CreateAsync(Walk walk);
     Task<Walk?> UpdateAsync(Guid id, Walk walk);
+    Task<Walk?> Delete(Guid id);
 }

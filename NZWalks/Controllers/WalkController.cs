@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using NZWalks.Models.Domain;
 using NZWalks.Models.DTO;
 using NZWalks.Repository;
@@ -35,24 +36,55 @@ public class WalkController(IWalkRepository walkRepository, IMapper mapper) : Co
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto)
     {
-        Walk newWalk = _mapper.Map<Walk>(addWalkRequestDto);
-        await walkRepository.CreateAsync(newWalk);
-        WalkDto walkDto = _mapper.Map<WalkDto>(newWalk);
+        if (ModelState.IsValid)
+        {
+            Walk newWalk = _mapper.Map<Walk>(addWalkRequestDto);
+            await walkRepository.CreateAsync(newWalk);
+            WalkDto walkDto = _mapper.Map<WalkDto>(newWalk);
 
-        return Ok(walkDto);
+            return Ok(walkDto);
+        }
+        else
+        {
+            return BadRequest(ModelState);
+        }
     }
 
     [HttpPut]
     [Route("{id:Guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, UpdateWalkRequestDto updateWalkRequestDto)
+    public async Task<IActionResult> Update(
+        [FromRoute] Guid id,
+        UpdateWalkRequestDto updateWalkRequestDto
+    )
     {
-        Walk walk = _mapper.Map<Walk>(updateWalkRequestDto);
-        Walk newWalk = await walkRepository.UpdateAsync(id, walk);
+        if (ModelState.IsValid)
+        {
+            Walk walk = _mapper.Map<Walk>(updateWalkRequestDto);
+            Walk newWalk = await walkRepository.UpdateAsync(id, walk);
 
-        if (newWalk == null) return NotFound();
+            if (newWalk == null)
+                return NotFound();
 
-        WalkDto newWalkDto = _mapper.Map<WalkDto>(newWalk);
+            WalkDto newWalkDto = _mapper.Map<WalkDto>(newWalk);
 
-        return Ok(newWalkDto);
+            return Ok(newWalkDto);
+        }
+        else
+        {
+            return BadRequest(ModelState);
+        }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        Walk deletedWalk = await walkRepository.Delete(id);
+
+        if (deletedWalk == null)
+            return NotFound();
+
+        WalkDto walkDto = _mapper.Map<WalkDto>(deletedWalk);
+
+        return Ok(walkDto);
     }
 }
