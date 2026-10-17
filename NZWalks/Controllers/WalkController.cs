@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using NZWalks.CustomActionFilters;
 using NZWalks.Models.Domain;
 using NZWalks.Models.DTO;
 using NZWalks.Repository;
@@ -34,6 +35,7 @@ public class WalkController(IWalkRepository walkRepository, IMapper mapper) : Co
     }
 
     [HttpPost]
+    [ValidateModel]
     public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto)
     {
         if (ModelState.IsValid)
@@ -52,27 +54,21 @@ public class WalkController(IWalkRepository walkRepository, IMapper mapper) : Co
 
     [HttpPut]
     [Route("{id:Guid}")]
+    [ValidateModel]
     public async Task<IActionResult> Update(
         [FromRoute] Guid id,
         UpdateWalkRequestDto updateWalkRequestDto
     )
     {
-        if (ModelState.IsValid)
-        {
-            Walk walk = _mapper.Map<Walk>(updateWalkRequestDto);
-            Walk newWalk = await walkRepository.UpdateAsync(id, walk);
+        Walk walk = _mapper.Map<Walk>(updateWalkRequestDto);
+        Walk newWalk = await walkRepository.UpdateAsync(id, walk);
 
-            if (newWalk == null)
-                return NotFound();
+        if (newWalk == null)
+            return NotFound();
 
-            WalkDto newWalkDto = _mapper.Map<WalkDto>(newWalk);
+        WalkDto newWalkDto = _mapper.Map<WalkDto>(newWalk);
 
-            return Ok(newWalkDto);
-        }
-        else
-        {
-            return BadRequest(ModelState);
-        }
+        return Ok(newWalkDto);
     }
 
     [HttpDelete]

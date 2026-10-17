@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NZWalks.CustomActionFilters;
 using NZWalks.Data;
 using NZWalks.Models.Domain;
 using NZWalks.Models.DTO;
@@ -44,45 +45,33 @@ public class RegionsController(
     }
 
     [HttpPost]
+    [ValidateModel]
     public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
     {
-        if (ModelState.IsValid)
-        {
-            Region newRegion = _mapper.Map<Region>(addRegionRequestDto);
-            await regionRepository.CreateAsync(newRegion);
-            RegionDto regionDto = _mapper.Map<RegionDto>(newRegion);
+        Region newRegion = _mapper.Map<Region>(addRegionRequestDto);
+        await regionRepository.CreateAsync(newRegion);
+        RegionDto regionDto = _mapper.Map<RegionDto>(newRegion);
 
-            return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
-        }
-        else
-        {
-            return BadRequest(ModelState);
-        }
+        return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
     }
 
     [HttpPut]
     [Route("{id:Guid}")]
+    [ValidateModel]
     public async Task<IActionResult> Update(
         [FromRoute] Guid id,
         [FromBody] UpdateRegionRequestDto updateRegionRequestDto
     )
     {
-        if (ModelState.IsValid)
-        {
-            Region convertedRegion = _mapper.Map<Region>(updateRegionRequestDto);
-            Region region = await regionRepository.UpdateAsync(id, convertedRegion);
+        Region convertedRegion = _mapper.Map<Region>(updateRegionRequestDto);
+        Region region = await regionRepository.UpdateAsync(id, convertedRegion);
 
-            if (region == null)
-                return NotFound();
+        if (region == null)
+            return NotFound();
 
-            RegionDto regionDto = _mapper.Map<RegionDto>(region);
+        RegionDto regionDto = _mapper.Map<RegionDto>(region);
 
-            return Ok(regionDto);
-        }
-        else
-        {
-            return BadRequest(ModelState);
-        }
+        return Ok(regionDto);
     }
 
     [HttpDelete]
